@@ -20,8 +20,19 @@ public class Reader extends Thread {
         this.start_time = System.currentTimeMillis() / 1000.0;
 
         for (int i = 0; i < number_of_reads; i++) {
-            // TODO: add the synchronization
-            read();
+            try {
+                // TODO: add the synchronization
+                shared_vars.startRead();
+                read();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    shared_vars.stopRead();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
         }
 

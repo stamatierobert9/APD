@@ -1,5 +1,7 @@
 package barber;
 
+import java.util.concurrent.Semaphore;
+
 public class Main {
     public final static int TOTAL_CHAIRS = 3;
     public final static int TOTAL_CLIENTS = 7;
@@ -12,6 +14,9 @@ public class Main {
     public static int[] leftClients = new int[TOTAL_CLIENTS];
 
     // TODO: add semaphores
+    public static Semaphore customers = new Semaphore(0);
+    public static Semaphore barber = new Semaphore(0);
+    public static Semaphore mutex = new Semaphore(1);
 
     public static int clients = TOTAL_CLIENTS;
     public static int chairs = TOTAL_CHAIRS;

@@ -21,10 +21,19 @@ public class Philosopher implements Runnable {
 
     @Override
     public void run() {
-        synchronized (leftFork) {
-            sleep(); // delay added to make sure the dead-lock is visible
+        if (id == Main.N - 1) {
             synchronized (rightFork) {
-                System.out.println("Philosopher " + id + " is eating");
+                sleep(); // delay added to make sure the dead-lock is visible
+                synchronized (leftFork) {
+                    System.out.println("Philosopher " + id + " is eating");
+                }
+            }
+        } else {
+            synchronized (leftFork) {
+                sleep(); // delay added to make sure the dead-lock is visible
+                synchronized (rightFork) {
+                    System.out.println("Philosopher " + id + " is eating");
+                }
             }
         }
     }

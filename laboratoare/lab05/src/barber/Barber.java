@@ -6,20 +6,26 @@ public class Barber extends Thread {
         int servedClients = 0;
 
         do {
-            // TODO
-
-            Main.chairs++;
-
-            // TODO
-
             try {
-                Thread.sleep(100);
+                // TODO
+                Main.customers.acquire();
+                Main.mutex.acquire();
+                Main.chairs++;
+                Main.mutex.release();
+                Main.barber.release();
+                // TODO
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Barber served client");
+                ++servedClients;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-            System.out.println("Barber served client");
-            ++servedClients;
 
         } while (checkIfThereAnyClients());
     }

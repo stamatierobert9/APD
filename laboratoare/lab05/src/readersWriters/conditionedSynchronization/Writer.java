@@ -21,7 +21,18 @@ public class Writer extends Thread {
 
         for (int i = 0; i < number_of_writes; i++) {
             // TODO: Add synchronization
-            write();
+            try {
+                shared_vars.startWrite();
+                write();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    shared_vars.stopWrite();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         this.completion_time = System.currentTimeMillis() / 1000.0 - this.start_time;
