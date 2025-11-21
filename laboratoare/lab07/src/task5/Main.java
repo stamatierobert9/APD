@@ -1,5 +1,10 @@
 package task5;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
+
 public class Main {
     static int N = 10;
     static int COLORS = 3;
@@ -8,18 +13,35 @@ public class Main {
             { 6, 8 }, { 6, 9 }, { 7, 2 }, { 7, 5 }, { 7, 9 }, { 8, 3 }, { 8, 5 }, { 8, 6 }, { 9, 4 }, { 9, 6 },
             { 9, 7 } };
 
-    static void colorGraph(int[] colors, int step) {
-        if (step == N) {
-            printColors(colors);
-            return;
+    // Definim task-ul recursiv pentru colorare
+    static class ColorTask extends RecursiveAction {
+        private final int[] colors;
+        private final int step;
+
+        public ColorTask(int[] colors, int step) {
+            this.colors = colors;
+            this.step = step;
         }
 
-        // for the node at position step try all possible colors
-        for (int i = 0; i < COLORS; i++) {
-            int[] newColors = colors.clone();
-            newColors[step] = i;
-            if (verifyColors(newColors, step))
-                colorGraph(newColors, step + 1);
+        @Override
+        protected void compute() {
+            if (step == N) {
+                printColors(colors);
+                return;
+            }
+
+            List<ColorTask> tasks = new ArrayList<>();
+
+            for (int i = 0; i < COLORS; i++) {
+                int[] newColors = colors.clone();
+                newColors[step] = i;
+
+                if (verifyColors(newColors, step)) {
+                    tasks.add(new ColorTask(newColors, step + 1));
+                }
+            }
+
+            invokeAll(tasks);
         }
     }
 
@@ -39,7 +61,7 @@ public class Main {
         return false;
     }
 
-    static void printColors(int[] colors) {
+    static synchronized void printColors(int[] colors) {
         StringBuilder aux = new StringBuilder();
         for (int color : colors) {
             aux.append(color).append(" ");
@@ -48,7 +70,12 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        ForkJoinPool fjp = new ForkJoinPool();
         int[] colors = new int[N];
-        colorGraph(colors, 0);
+
+        ColorTask rootTask = new ColorTask(colors, 0);
+        fjp.invoke(rootTask);
+
+        fjp.shutdown();
     }
 }

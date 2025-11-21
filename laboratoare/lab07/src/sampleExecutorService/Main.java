@@ -11,6 +11,6 @@ public class Main {
 		ExecutorService tpe = Executors.newFixedThreadPool(4);
 
 		inQueue.incrementAndGet();
-		tpe.submit(new MyRunnable("files", tpe, inQueue));
+		tpe.submit(new MyRunnable("laboratoare/lab07/files", tpe, inQueue));
 	}
 }

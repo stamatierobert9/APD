@@ -13,7 +13,7 @@ public class Main {
 		CompletableFuture<String> completableFuture = new CompletableFuture<>();
 		AtomicInteger counter = new AtomicInteger(0);
 		counter.incrementAndGet();
-		tpe.submit(new MyRunnable(tpe, "files", "somefile.txt", counter, completableFuture));
+        tpe.submit(new MyRunnable(tpe, "laboratoare/lab07/files", "somefile.txt", counter, completableFuture));
 
 		var result = completableFuture.get();
 		if (result != null) {

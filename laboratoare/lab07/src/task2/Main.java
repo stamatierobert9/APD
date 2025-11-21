@@ -1,5 +1,9 @@
 package task2;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Main {
     static int N = 10;
     static int COLORS = 3;
@@ -8,18 +12,33 @@ public class Main {
             { 6, 8 }, { 6, 9 }, { 7, 2 }, { 7, 5 }, { 7, 9 }, { 8, 3 }, { 8, 5 }, { 8, 6 }, { 9, 4 }, { 9, 6 },
             { 9, 7 } };
 
+    static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    static AtomicInteger activeTasks = new AtomicInteger(0);
+
     static void colorGraph(int[] colors, int step) {
         if (step == N) {
             printColors(colors);
+
+            if (activeTasks.decrementAndGet() == 0) {
+                executor.shutdown();
+            }
             return;
         }
 
-        // for the node at position step try all possible colors
         for (int i = 0; i < COLORS; i++) {
             int[] newColors = colors.clone();
             newColors[step] = i;
-            if (verifyColors(newColors, step))
-                colorGraph(newColors, step + 1);
+
+            if (verifyColors(newColors, step)) {
+
+                activeTasks.incrementAndGet();
+
+                executor.submit(() -> colorGraph(newColors, step + 1));
+            }
+        }
+
+        if (activeTasks.decrementAndGet() == 0) {
+            executor.shutdown();
         }
     }
 
@@ -39,7 +58,7 @@ public class Main {
         return false;
     }
 
-    static void printColors(int[] colors) {
+    static synchronized void printColors(int[] colors) {
         StringBuilder aux = new StringBuilder();
         for (int color : colors) {
             aux.append(color).append(" ");
@@ -49,6 +68,17 @@ public class Main {
 
     public static void main(String[] args) {
         int[] colors = new int[N];
-        colorGraph(colors, 0);
+
+        activeTasks.incrementAndGet();
+
+        executor.submit(() -> colorGraph(colors, 0));
+
+        while (!executor.isTerminated()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
