@@ -1,10 +1,15 @@
 package parallelTree;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 public class VerifyTree implements Runnable {
 	TreeNode tree;
+    CyclicBarrier barrier;
 
-	public VerifyTree(TreeNode tree) {
+	public VerifyTree(TreeNode tree, CyclicBarrier barrier) {
 		this.tree = tree;
+        this.barrier = barrier;
 	}
 
 	public boolean isCorrect(TreeNode tree) {
@@ -30,10 +35,15 @@ public class VerifyTree implements Runnable {
 
 	@Override
 	public void run() {
-		if (isCorrect(tree))
-			System.out.println("Correct");
-		else
-			System.out.println("Wrong");
-
-	}
+        try {
+            barrier.await();
+            if (isCorrect(tree)) {
+                System.out.println("Correct");
+            } else {
+                System.out.println("Wrong");
+            }
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
+        }
+    }
 }

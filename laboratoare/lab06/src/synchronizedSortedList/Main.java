@@ -2,6 +2,7 @@ package synchronizedSortedList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class Main {
     private final static int N_ITERATIONS = 100;
@@ -14,10 +15,13 @@ public class Main {
         for (int i = 0; i < N_ITERATIONS; i++) {
             List<Integer> list = new ArrayList<>();
 
-            threads[0] = new Reader("elemente1.txt", list);
-            threads[1] = new Reader("elemente2.txt", list);
-            threads[2] = new Reader("elemente3.txt", list);
-            threads[3] = new Sort(list);
+            Semaphore semBarrier = new Semaphore(0);
+            Semaphore semMutex = new Semaphore(1);
+
+            threads[0] = new Reader("laboratoare/lab06/elemente1.txt", list, semBarrier, semMutex);
+            threads[1] = new Reader("laboratoare/lab06/elemente2.txt", list, semBarrier, semMutex);
+            threads[2] = new Reader("laboratoare/lab06/elemente3.txt", list, semBarrier, semMutex);
+            threads[3] = new Sort(list, semBarrier);
 
             for (int j = 0; j < NUMBER_OF_THREADS; j++) {
                 threads[j].start();

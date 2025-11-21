@@ -11,11 +11,20 @@ public class MyThread implements Runnable {
 	}
 
 	private void addValue(int key, int value) {
-		if (hashMap.containsKey(key)) {
-			hashMap.put(key, hashMap.get(key) + value);
-		} else {
-			hashMap.put(key, value);
-		}
+        while (true) {
+            Integer oldValue = hashMap.get(key);
+
+            if (oldValue == null) {
+                if (hashMap.putIfAbsent(key, value) == null) {
+                    break;
+                }
+            } else {
+                int newValue = oldValue + value;
+                if (hashMap.replace(key, oldValue, newValue)) {
+                    break;
+                }
+            }
+        }
 	}
 	
 	@Override
