@@ -26,14 +26,44 @@ int main (int argc, char *argv[])
      * Prints the values received after scatter.
      * NOTE: If MULTI changed, also change this line.
      */
+
+    if (rank == ROOT) {
+        v_send = (int *)malloc(num_elements * sizeof(int));
+        for (int i = 0; i < num_elements; i++) {
+            v_send[i] = i;
+        }
+        printf("ROOT: Am generat vectorul initial.\n");
+    }
+
+    MPI_Scatter(v_send, MULTI, MPI_INT,
+                v_recv, MULTI, MPI_INT,
+                ROOT, MPI_COMM_WORLD);
+
+    for (int i = 0; i < MULTI; i++) {
+        v_recv[i] += rank;
+    }
+
     printf("Process [%d]: have elements %d %d %d %d %d.\n", rank, v_recv[0],
             v_recv[1], v_recv[2], v_recv[3], v_recv[4]);
+    
+            MPI_Gather(v_recv, MULTI, MPI_INT,
+               v_send, MULTI, MPI_INT,
+               ROOT, MPI_COMM_WORLD);
 
     // Each process increments the values of the partial vector received.
     // Gathers the values from all the processes.
     // The ROOT process prints the elements received.
 
+    if (rank == ROOT) {
+        printf("ROOT: Rezultatul final dupa Gather:\n");
+        for (int i = 0; i < num_elements; i++) {
+            printf("%d ", v_send[i]);
+        }
+        printf("\n");
+        free(v_send);
+    }
+
+    free(v_recv);
     MPI_Finalize();
-
+    return 0;
 }
-

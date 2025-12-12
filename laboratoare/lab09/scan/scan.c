@@ -16,6 +16,14 @@ int main (int argc, char *argv[])
 
     for (int i = 1; i < procs; i *= 2) {
         // TODO
+        int received_value = 0;
+        if (rank + i < procs) {
+            MPI_Send(&value, 1, MPI_INT, rank + i, 0, MPI_COMM_WORLD);
+        }
+        if (rank >= i) {
+            MPI_Recv(&received_value, 1, MPI_INT, rank - i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            value += received_value;
+        }
     }
 
     printf("Process [%d] has result = %d\n", rank, value);
