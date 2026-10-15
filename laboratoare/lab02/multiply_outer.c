@@ -13,16 +13,22 @@ int **c;
 void *thread_function(void *arg)
 {
 	int thread_id = *(int *)arg;
+	int i, j, k;
 
-	/*
-	for (i = 0; i < N; i++) {
+	// fiecare thread primeste un interval [start, end) din iteratia exterioara
+	int start = thread_id * (double)N / P;
+	int end = (thread_id + 1) * (double)N / P;
+	if (end > N) {
+		end = N;
+	}
+
+	for (i = start; i < end; i++) {
 		for (j = 0; j < N; j++) {
 			for (k = 0; k < N; k++) {
 				c[i][j] += a[i][k] * b[k][j];
 			}
 		}
 	}
-	*/
 
 	pthread_exit(NULL);
 }

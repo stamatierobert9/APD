@@ -6,18 +6,14 @@
 
 int a = 0;
 
-// Declarați mutexul global
 pthread_mutex_t lock;
 
-// Funcția rulată de fiecare thread
 void *f(void *arg)
 {
-    // Blocăm mutexul pentru a proteja secțiunea critică
     pthread_mutex_lock(&lock);
 
-    a += 2; // secțiune critică — modificăm variabila partajată
+    a += 2;
 
-    // Deblocăm mutexul după ce am terminat
     pthread_mutex_unlock(&lock);
 
     pthread_exit(NULL);
@@ -30,10 +26,10 @@ int main(int argc, char *argv[])
     pthread_t threads[NUM_THREADS];
     int arguments[NUM_THREADS];
 
-    // Inițializăm mutexul
+    // Initializam mutexul
     pthread_mutex_init(&lock, NULL);
 
-    // Creăm thread-urile
+    // Cream thread-urile
     for (i = 0; i < NUM_THREADS; i++) {
         arguments[i] = i;
         r = pthread_create(&threads[i], NULL, f, &arguments[i]);
@@ -44,7 +40,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Așteptăm terminarea thread-urilor
+    // Asteptam terminarea thread-urilor
     for (i = 0; i < NUM_THREADS; i++) {
         r = pthread_join(threads[i], &status);
 

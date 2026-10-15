@@ -7,22 +7,36 @@ int P;
 int **a;
 int **b;
 int **c;
+pthread_mutex_t mutex;
 
 // TODO: paralelizati operatia din comentariul din functie
 // in interiorul functiei respective
 void *thread_function(void *arg)
 {
 	int thread_id = *(int *)arg;
+	int i, j, k;
 
-	/*
+	// fiecare thread primeste un interval [start, end) din bucla interioara (k)
+	int start = thread_id * (double)N / P;
+	int end = (thread_id + 1) * (double)N / P;
+	if (end > N) {
+		end = N;
+	}
+
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
-			for (k = 0; k < N; k++) {
-				c[i][j] += a[i][k] * b[k][j];
+			// toate thread-urile scriu in acelasi c[i][j], deci suma partiala
+			// se calculeaza local si se adauga o singura data, sub mutex
+			int sum = 0;
+			for (k = start; k < end; k++) {
+				sum += a[i][k] * b[k][j];
 			}
+
+			pthread_mutex_lock(&mutex);
+			c[i][j] += sum;
+			pthread_mutex_unlock(&mutex);
 		}
 	}
-	*/
 
 	pthread_exit(NULL);
 }
@@ -98,6 +112,8 @@ int main(int argc, char *argv[])
 	pthread_t tid[P];
 	int thread_id[P];
 
+	pthread_mutex_init(&mutex, NULL);
+
 	for (i = 0; i < P; i++) {
 		thread_id[i] = i;
 		pthread_create(&tid[i], NULL, thread_function, &thread_id[i]);
@@ -106,6 +122,8 @@ int main(int argc, char *argv[])
 	for (i = 0; i < P; i++) {
 		pthread_join(tid[i], NULL);
 	}
+
+	pthread_mutex_destroy(&mutex);
 
 	print(c);
 
